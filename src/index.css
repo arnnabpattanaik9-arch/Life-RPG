@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-glow: rgba(6, 182, 212, 0.4);
+  --accent-glow: rgba(245, 158, 11, 0.4);
+}
+
+/* Custom Themes */
+body.theme-cyberpunk {
+  --bg-main: #070913;
+  --surface-main: #0e1322;
+  --card-main: #131b31;
+  --border-main: #1e293b;
+  --accent: #00f0ff;
+  --accent-sec: #d946ef;
+}
+
+body.theme-arcane {
+  --bg-main: #0c0a1a;
+  --surface-main: #15112e;
+  --card-main: #1d1840;
+  --border-main: #312e81;
+  --accent: #8b5cf6;
+  --accent-sec: #f59e0b;
+}
+
+body.theme-retro {
+  --bg-main: #121015;
+  --surface-main: #1a1622;
+  --card-main: #231d2f;
+  --border-main: #3f3750;
+  --accent: #22c55e;
+  --accent-sec: #eab308;
+}
+
+body.theme-obsidian {
+  --bg-main: #050608;
+  --surface-main: #0b0d12;
+  --card-main: #12151c;
+  --border-main: #1e2330;
+  --accent: #f59e0b;
+  --accent-sec: #64748b;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #242d45;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+/* Glassmorphic Panel Utility */
+.rpg-panel {
+  background: rgba(19, 27, 49, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rpg-panel-glow {
+  background: rgba(19, 27, 49, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.15);
+}
+
+.rpg-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rpg-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.6);
+}
+
+/* Tactile Button Press */
+.rpg-button {
+  transition: all 0.15s ease-in-out;
+}
+.rpg-button:active {
+  transform: scale(0.97);
+}
+
+/* Smooth Focus Rings */
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* Floating Badges Animation */
+@keyframes floatUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-12px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.9);
+  }
+}
+
+.animate-float-up {
+  animation: floatUpFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Shimmer Progress Fill */
+.shimmer-bar {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
