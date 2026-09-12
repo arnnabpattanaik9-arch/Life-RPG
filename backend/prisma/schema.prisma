@@ -1,0 +1,246 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Attribute {
+  strength
+  intellect
+  vitality
+  agility
+  charisma
+}
+
+enum Difficulty {
+  trivial
+  easy
+  medium
+  hard
+  epic
+}
+
+enum QuestType {
+  quest
+  daily
+}
+
+enum HabitFrequency {
+  daily
+  weekly
+}
+
+enum ItemCategory {
+  weapon
+  armor
+  potion
+  title
+}
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  name             String
+  passwordHash     String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  character        Character?
+  quests           Quest[]
+  questCompletions QuestCompletion[]
+  habits           Habit[]
+  habitCompletions HabitCompletion[]
+  focusSessions    FocusSession[]
+
+  @@index([email])
+}
+
+model Session {
+  sid    String   @id @db.VarChar
+  sess   Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+  @@map("session")
+}
+
+model Character {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  level          Int       @default(1)
+  xp             Int       @default(0)
+  gold           Int       @default(25)
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDate String?
+  history        String[]  @default([])
+
+  stats          CharacterStats?
+  inventory      Inventory[]
+  achievements   UserAchievement[]
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model CharacterStats {
+  id                   String    @id @default(uuid())
+  characterId          String    @unique
+  character            Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  strength             Int       @default(1)
+  intellect            Int       @default(1)
+  vitality             Int       @default(1)
+  agility              Int       @default(1)
+  charisma             Int       @default(1)
+  totalQuestsCompleted Int       @default(0)
+  totalFocusMinutes    Int       @default(0)
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model Quest {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title             String
+  notes             String?
+  attribute         Attribute
+  difficulty        Difficulty
+  type              QuestType
+  completed         Boolean           @default(false)
+  completedAt       DateTime?
+  lastCompletedDate String?
+
+  completions       QuestCompletion[]
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model QuestCompletion {
+  id             String    @id @default(uuid())
+  questId        String
+  quest          Quest     @relation(fields: [questId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  completionDate String
+  xpAwarded      Int
+  goldAwarded    Int
+  attribute      Attribute
+  completedAt    DateTime  @default(now())
+
+  @@unique([questId, completionDate])
+  @@index([userId, completionDate])
+}
+
+model Habit {
+  id            String            @id @default(uuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title         String
+  notes         String?
+  attribute     Attribute
+  frequency     HabitFrequency    @default(daily)
+  currentStreak Int               @default(0)
+  longestStreak Int               @default(0)
+
+  completions   HabitCompletion[]
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([userId])
+}
+
+model HabitCompletion {
+  id          String   @id @default(uuid())
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date        String
+  completedAt DateTime @default(now())
+
+  @@unique([habitId, date])
+  @@index([userId, date])
+}
+
+model FocusSession {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  durationMinutes Int
+  xpAwarded       Int
+  goldAwarded     Int
+  attribute       Attribute @default(intellect)
+  date            String
+  completedAt     DateTime  @default(now())
+
+  @@index([userId, completedAt(sort: Desc)])
+}
+
+model Item {
+  id          String       @id
+  name        String
+  description String
+  cost        Int
+  category    ItemCategory
+  icon        String
+
+  inventories Inventory[]
+
+  createdAt   DateTime     @default(now())
+}
+
+model Inventory {
+  id          String    @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  itemId      String
+  item        Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  quantity    Int       @default(1)
+  equipped    Boolean   @default(false)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([characterId, itemId])
+}
+
+model Achievement {
+  id               String            @id
+  name             String
+  description      String
+  icon             String
+
+  userAchievements UserAchievement[]
+
+  createdAt        DateTime          @default(now())
+}
+
+model UserAchievement {
+  id            String      @id @default(uuid())
+  characterId   String
+  character     Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt    DateTime    @default(now())
+
+  @@unique([characterId, achievementId])
+}
