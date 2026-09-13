@@ -55,6 +55,35 @@ export const Footer: React.FC = () => {
           Life RPG — Gamified Real-World Productivity System • Level up code, iron, mind, and habits.
         </div>
       </div>
+
+      {/* Scrolling Team Credits Ticker */}
+      <div className="w-full overflow-hidden bg-slate-900/70 border-t border-amber-500/20 py-2 mt-4">
+        <style>{`
+          @keyframes marquee-scroll {
+            0%   { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+          }
+          .marquee-track {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee-scroll 18s linear infinite;
+          }
+          .marquee-track:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
+        <div className="marquee-track text-[12px] font-semibold tracking-wide">
+          <span className="text-amber-400">⚔️ This Project is Made by —</span>
+          <span className="text-white mx-3">Ayushman Pattnaik</span>
+          <span className="text-amber-500/60 mx-1">✦</span>
+          <span className="text-cyan-300 mx-3">Arnnab Pattanaik</span>
+          <span className="text-amber-500/60 mx-1">✦</span>
+          <span className="text-purple-300 mx-3">Bishnu Prasad Senapati</span>
+          <span className="text-amber-500/60 mx-1">✦</span>
+          <span className="text-emerald-300 mx-3">Snehal Priyadarshi</span>
+          <span className="text-amber-400 mx-4">🏆 Tech Zephyr 4.0</span>
+        </div>
+      </div>
     </footer>
   );
 };
