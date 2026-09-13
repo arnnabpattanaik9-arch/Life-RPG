@@ -178,6 +178,41 @@ Open `http://localhost:5173` in your browser.
   - **Vercel**: Edge static hosting and global CDN for the React frontend application.
   - **Render**: Containerized Linux Web Service hosting the Node.js/Express REST API.
   - **Neon**: Serverless cloud PostgreSQL database with pooled SSL connections.
+ 
+# AI Development Disclosure
+
+## Overview
+
+This project was developed by our team with assistance from AI-based
+development tools, primarily Antigravity AI.
+
+The product idea, feature decisions, design direction, and overall
+development decisions were determined by our team.
+
+## Use of AI
+
+Antigravity AI was used to assist with the initial frontend skeleton,
+frontend implementation, code generation, debugging, refactoring,
+and development iterations.
+
+The generated code was reviewed and modified by our team according
+to our requirements.
+
+## Team Contributions
+
+Our team was responsible for:
+
+- Ideating the original product concept
+- Deciding the features and functionality
+- Designing the product flow
+- Modifying and refining the frontend
+- Implementing the database and SQL
+- Integrating the database/backend
+- Testing and debugging the application
+- Making final implementation decisions
+
+AI was used as a development assistant, while the team retained
+responsibility for the final product and implementation.
 
 ---
 
