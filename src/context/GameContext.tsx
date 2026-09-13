@@ -6,6 +6,7 @@ import { api } from '../services/api';
 import { sound } from '../services/sound';
 import { fireLevelUpConfetti, fireQuestCompleteConfetti, fireBossDefeatedConfetti } from '../services/confetti';
 import { calculateMaxXpForLevel, calculateAttributeMaxXp, calculateEarnedRewards } from '../engine/progression';
+import { useAuth } from './AuthContext';
 
 export interface FloatingRewardItem {
   id: string;
@@ -55,6 +56,7 @@ interface GameContextType {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<CharacterProfile | null>(null);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -97,7 +99,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     loadAllGameData();
-  }, [loadAllGameData]);
+  }, [user, loadAllGameData]);
 
   const addFloatingReward = (text: string, type: FloatingRewardItem['type'], coords?: { x: number; y: number }) => {
     const id = 'float-' + Math.random();
@@ -257,11 +259,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updatedProfile.gems += 1 * levelsGained;
     }
 
-    // Persist to API
-    await Promise.all([
-      api.quests.update(id, { status: 'completed', completedAt: nowIso }),
-      api.character.updateProfile(updatedProfile),
-    ]);
+    // Persist to server-authoritative API
+    try {
+      await api.quests.complete(id);
+      const freshProfile = await api.character.getProfile();
+      if (freshProfile) {
+        setProfile(freshProfile);
+      }
+    } catch (err) {
+      console.warn('Backend quest completion sync notice:', err);
+    }
   };
 
   // --- SHOP & INVENTORY ---

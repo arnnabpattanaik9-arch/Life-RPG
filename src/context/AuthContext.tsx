@@ -72,12 +72,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       shadow: { name: 'Nyx Shadowstep', class: 'shadow' as const, email: 'nyx@liferpg.realm' },
     };
     const selected = archetypeMap[archetype];
-    await signup({
-      email: selected.email,
-      username: selected.name.replace(/\s+/g, ''),
-      characterName: selected.name,
-      characterClass: selected.class,
-    });
+    try {
+      await signup({
+        email: selected.email,
+        username: selected.name.replace(/\s+/g, ''),
+        characterName: selected.name,
+        characterClass: selected.class,
+        password: 'Password123!',
+      });
+    } catch {
+      // If user already exists in PostgreSQL, log in directly
+      await login({
+        email: selected.email,
+        password: 'Password123!',
+      });
+    }
   };
 
   return (

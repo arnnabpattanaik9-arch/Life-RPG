@@ -4,8 +4,74 @@ import { CharacterProfile, BossEntity } from '../types/character';
 import { Quest, QuestFilterOptions } from '../types/quest';
 import { ShopItem, InventoryItem } from '../types/shop';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
+function resolveApiBaseUrl(): string {
+  let url = import.meta.env.VITE_API_URL;
+  if (url && typeof url === 'string') {
+    url = url.trim();
+    // Strip accidental variable key duplication (e.g. VITE_API_URL=https://...)
+    if (url.startsWith('VITE_API_URL=')) {
+      url = url.substring('VITE_API_URL='.length).trim();
+    }
+    // Remove trailing slashes
+    url = url.replace(/\/+$/, '');
+    // Correct any obsolete or typo backend subdomain
+    url = url.replace('life-rpg-gakex.onrender.com', 'life-rpg-akex.onrender.com');
+    // Ensure development localhost is not used in production builds
+    if (import.meta.env.PROD && (url.includes('localhost') || url.includes('127.0.0.1') || url.includes('0.0.0.0'))) {
+      url = '';
+    }
+    if (url) {
+      if (!url.endsWith('/api')) {
+        url = `${url}/api`;
+      }
+      return url;
+    }
+  }
+  // Production fallback must target live Render backend
+  if (import.meta.env.PROD) {
+    return 'https://life-rpg-akex.onrender.com/api';
+  }
+  return 'http://localhost:5000/api';
+}
+
+function getDefaultGuestProfile(): CharacterProfile {
+  return {
+    id: 'hero-guest',
+    userId: 'guest',
+    name: 'Hero',
+    title: 'Real-World Adventurer',
+    bio: 'Leveling up one quest at a time.',
+    characterClass: 'vanguard',
+    avatarUrl: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=256',
+    level: 1,
+    currentXp: 0,
+    maxXp: 100,
+    hp: 100,
+    maxHp: 100,
+    mana: 50,
+    maxMana: 50,
+    gold: 25,
+    gems: 5,
+    streak: 0,
+    longestStreak: 0,
+    streakShieldActive: false,
+    lastActiveDate: new Date().toISOString().split('T')[0],
+    streakHistory: [],
+    attributes: {
+      strength: { level: 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+      intellect: { level: 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+      vitality: { level: 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+      agility: { level: 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+      charisma: { level: 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+    },
+    equippedGear: {},
+    unlockedBadges: [],
+  };
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+// Production frontend MUST use the real backend, not mock/localStorage API
+const USE_MOCK = import.meta.env.PROD ? false : import.meta.env.VITE_USE_MOCK_API === 'true';
 
 export class ApiError extends Error {
   status: number;
@@ -200,28 +266,55 @@ export async function listQuests(filter?: Partial<QuestFilterOptions>): Promise<
 
 export async function createQuest(quest: any): Promise<any> {
   if (USE_MOCK) return mockStorage.createQuest(quest);
+  const backendType = quest.type === 'habit' || quest.type === 'daily' ? 'daily' : 'quest';
+  const attr = String(quest.attribute || 'intellect').toLowerCase();
+  const validAttrs = ['strength', 'intellect', 'vitality', 'agility', 'charisma'];
+  const sanitizedAttr = validAttrs.includes(attr) ? attr : 'intellect';
+
+  const diff = String(quest.difficulty || 'medium').toLowerCase();
+  const validDiffs = ['trivial', 'easy', 'medium', 'hard', 'epic'];
+  const sanitizedDiff = validDiffs.includes(diff) ? diff : 'medium';
+
   return request<any>('/quests', {
     method: 'POST',
     body: JSON.stringify({
       title: quest.title,
       notes: quest.description || quest.notes || undefined,
-      attribute: quest.attribute,
-      difficulty: quest.difficulty,
-      type: quest.type === 'habit' ? 'daily' : (quest.type || 'quest'),
+      attribute: sanitizedAttr,
+      difficulty: sanitizedDiff,
+      type: backendType,
     }),
   });
 }
 
 export async function updateQuest(id: string, updates: any): Promise<any> {
   if (USE_MOCK) return mockStorage.updateQuest(id, updates);
+  const backendType = updates.type !== undefined
+    ? (updates.type === 'habit' || updates.type === 'daily' ? 'daily' : 'quest')
+    : undefined;
+
+  let sanitizedAttr: string | undefined;
+  if (updates.attribute) {
+    const attr = String(updates.attribute).toLowerCase();
+    const validAttrs = ['strength', 'intellect', 'vitality', 'agility', 'charisma'];
+    sanitizedAttr = validAttrs.includes(attr) ? attr : 'intellect';
+  }
+
+  let sanitizedDiff: string | undefined;
+  if (updates.difficulty) {
+    const diff = String(updates.difficulty).toLowerCase();
+    const validDiffs = ['trivial', 'easy', 'medium', 'hard', 'epic'];
+    sanitizedDiff = validDiffs.includes(diff) ? diff : 'medium';
+  }
+
   return request<any>(`/quests/${id}`, {
     method: 'PATCH',
     body: JSON.stringify({
       title: updates.title,
       notes: updates.description || updates.notes || undefined,
-      attribute: updates.attribute,
-      difficulty: updates.difficulty,
-      type: updates.type === 'habit' ? 'daily' : updates.type,
+      ...(sanitizedAttr ? { attribute: sanitizedAttr } : {}),
+      ...(sanitizedDiff ? { difficulty: sanitizedDiff } : {}),
+      ...(backendType !== undefined ? { type: backendType } : {}),
     }),
   });
 }
@@ -301,41 +394,48 @@ export const api = {
   character: {
     getProfile: async (): Promise<CharacterProfile> => {
       if (USE_MOCK) return mockStorage.getCharacterProfile();
-      const raw = await getCharacter();
-      const stats = raw.stats || {};
-      const attrs = stats.attributes || {};
-      return {
-        id: raw.id || 'hero-char-1',
-        userId: raw.userId,
-        name: 'Hero',
-        title: 'Real-World Adventurer',
-        bio: 'Leveling up one quest at a time.',
-        characterClass: 'vanguard',
-        avatarUrl: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=256',
-        level: stats.level || 1,
-        currentXp: stats.xp || 0,
-        maxXp: Math.floor(100 * Math.pow(stats.level || 1, 1.5)),
-        hp: 100,
-        maxHp: 100,
-        mana: 50,
-        maxMana: 50,
-        gold: stats.gold || 0,
-        gems: 5,
-        streak: stats.currentStreak || 0,
-        longestStreak: stats.longestStreak || 0,
-        streakShieldActive: false,
-        lastActiveDate: stats.lastActiveDate || new Date().toISOString().split('T')[0],
-        streakHistory: stats.history || [],
-        attributes: {
-          strength: { level: attrs.strength || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
-          intellect: { level: attrs.intellect || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
-          vitality: { level: attrs.vitality || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
-          agility: { level: attrs.agility || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
-          charisma: { level: attrs.charisma || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
-        },
-        equippedGear: {},
-        unlockedBadges: (raw.unlockedAchievements || []).map((a: any) => a.achievementId),
-      };
+      try {
+        const raw = await getCharacter();
+        const stats = raw.stats || {};
+        const attrs = stats.attributes || {};
+        return {
+          id: raw.id || 'hero-char-1',
+          userId: raw.userId,
+          name: 'Hero',
+          title: 'Real-World Adventurer',
+          bio: 'Leveling up one quest at a time.',
+          characterClass: 'vanguard',
+          avatarUrl: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&q=80&w=256',
+          level: stats.level || 1,
+          currentXp: stats.xp || 0,
+          maxXp: Math.floor(100 * Math.pow(stats.level || 1, 1.5)),
+          hp: 100,
+          maxHp: 100,
+          mana: 50,
+          maxMana: 50,
+          gold: stats.gold || 0,
+          gems: 5,
+          streak: stats.currentStreak || 0,
+          longestStreak: stats.longestStreak || 0,
+          streakShieldActive: false,
+          lastActiveDate: stats.lastActiveDate || new Date().toISOString().split('T')[0],
+          streakHistory: stats.history || [],
+          attributes: {
+            strength: { level: attrs.strength || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+            intellect: { level: attrs.intellect || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+            vitality: { level: attrs.vitality || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+            agility: { level: attrs.agility || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+            charisma: { level: attrs.charisma || 1, currentXp: 0, maxXp: 100, tasksCompleted: 0 },
+          },
+          equippedGear: {},
+          unlockedBadges: (raw.unlockedAchievements || []).map((a: any) => a.achievementId),
+        };
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          return getDefaultGuestProfile();
+        }
+        throw err;
+      }
     },
     updateProfile: async (updates: Partial<CharacterProfile>): Promise<CharacterProfile> => {
       if (USE_MOCK) return mockStorage.updateCharacterProfile(updates);
@@ -346,8 +446,15 @@ export const api = {
   quests: {
     getAll: async (filter?: Partial<QuestFilterOptions>): Promise<Quest[]> => {
       if (USE_MOCK) return mockStorage.getQuests(filter);
-      const list = await listQuests(filter);
-      return list.map(mapBackendQuestToFrontend);
+      try {
+        const list = await listQuests(filter);
+        return list.map(mapBackendQuestToFrontend);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          return [];
+        }
+        throw err;
+      }
     },
     create: async (quest: Omit<Quest, 'id' | 'createdAt' | 'status'>): Promise<Quest> => {
       if (USE_MOCK) return mockStorage.createQuest(quest);
@@ -361,6 +468,9 @@ export const api = {
     },
     delete: async (id: string): Promise<boolean> => {
       return deleteQuest(id);
+    },
+    complete: async (id: string): Promise<any> => {
+      return completeQuest(id);
     },
   },
 
@@ -381,31 +491,38 @@ export const api = {
     },
     getInventory: async (): Promise<InventoryItem[]> => {
       if (USE_MOCK) return mockStorage.getInventory();
-      const char = await getCharacter();
-      const catalog = await api.shop.getCatalog();
-      return (char.inventory || []).map((inv: any) => {
-        const found = catalog.find((c) => c.id === inv.itemId) || {
-          id: inv.itemId,
-          name: 'Adventurer Gear',
-          description: 'Standard gear',
-          category: 'weapon' as const,
-          rarity: 'common' as const,
-          costGold: 20,
-          costGems: 0,
-          icon: 'Sparkles',
-          modifier: {},
-          requiredLevel: 1,
-        };
-        return {
-          id: inv.itemId,
-          userId: char.userId,
-          shopItemId: inv.itemId,
-          item: found,
-          quantity: inv.quantity || 1,
-          isEquipped: inv.equipped || false,
-          acquiredAt: new Date().toISOString(),
-        };
-      });
+      try {
+        const char = await getCharacter();
+        const catalog = await api.shop.getCatalog();
+        return (char.inventory || []).map((inv: any) => {
+          const found = catalog.find((c) => c.id === inv.itemId) || {
+            id: inv.itemId,
+            name: 'Adventurer Gear',
+            description: 'Standard gear',
+            category: 'weapon' as const,
+            rarity: 'common' as const,
+            costGold: 20,
+            costGems: 0,
+            icon: 'Sparkles',
+            modifier: {},
+            requiredLevel: 1,
+          };
+          return {
+            id: inv.itemId,
+            userId: char.userId,
+            shopItemId: inv.itemId,
+            item: found,
+            quantity: inv.quantity || 1,
+            isEquipped: inv.equipped || false,
+            acquiredAt: new Date().toISOString(),
+          };
+        });
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          return [];
+        }
+        throw err;
+      }
     },
     buy: async (shopItemId: string): Promise<{ inventoryItem: InventoryItem; profile: CharacterProfile }> => {
       if (USE_MOCK) return mockStorage.buyItem(shopItemId);

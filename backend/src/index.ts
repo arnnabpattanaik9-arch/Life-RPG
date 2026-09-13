@@ -11,6 +11,9 @@ import apiRouter from './routes/index.js';
 
 const app = express();
 
+// Trust reverse proxy (e.g. Render, Vercel) so secure cookies over HTTPS work properly
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -20,7 +23,8 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, curl, server-to-server)
       if (!origin) return callback(null, true);
-      if (config.corsOrigins.includes(origin) || !config.isProduction) {
+      const normalized = origin.replace(/\/+$/, '');
+      if (config.corsOrigins.includes(normalized) || !config.isProduction) {
         return callback(null, true);
       }
       return callback(new ApiError('Not allowed by CORS', 403));
@@ -73,17 +77,27 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: config.isProduction,
-      sameSite: config.isProduction ? 'strict' : 'lax',
+      sameSite: config.isProduction ? 'none' : 'lax',
       maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
     },
   })
 );
 
-// Health check endpoint
-app.get('/api/health', (_req, res) => {
+// Health check endpoints (supports /api/health, /health, and root /)
+const healthHandler = (_req: express.Request, res: express.Response) => {
   res.status(200).json({
     status: 'ok',
     uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+};
+
+app.get('/api/health', healthHandler);
+app.get('/health', healthHandler);
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'Life RPG API backend is live',
     timestamp: new Date().toISOString(),
   });
 });
@@ -99,15 +113,13 @@ app.use((_req, _res, next) => {
 // Centralized error handling
 app.use(errorHandler);
 
-const isMain = process.argv[1] && (
-  process.argv[1].endsWith('index.ts') ||
-  process.argv[1].endsWith('index.js')
-);
+const PORT = Number(process.env.PORT) || config.port || 5000;
+const HOST = '0.0.0.0';
 
-if (process.env.NODE_ENV !== 'test' && isMain) {
-  app.listen(config.port, () => {
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, HOST, () => {
     // eslint-disable-next-line no-console
-    console.log(`[Life RPG API] Server listening on http://localhost:${config.port}`);
+    console.log(`[Life RPG API] Server listening on http://${HOST}:${PORT}`);
   });
 }
 

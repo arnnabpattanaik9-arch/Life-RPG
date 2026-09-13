@@ -29,9 +29,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   useEffect(() => {
-    // Clean previous theme classes
-    THEMES.forEach((t) => document.body.classList.remove(`theme-${t.id}`));
+    // Clean previous theme classes and apply active theme
+    THEMES.forEach((t) => {
+      document.body.classList.remove(`theme-${t.id}`);
+      document.documentElement.classList.remove(`theme-${t.id}`);
+    });
     document.body.classList.add(`theme-${theme}`);
+    document.documentElement.classList.add(`theme-${theme}`);
+    document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
   return (

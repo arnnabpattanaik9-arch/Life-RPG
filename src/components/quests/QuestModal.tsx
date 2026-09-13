@@ -113,8 +113,11 @@ export const QuestModal: React.FC<QuestModalProps> = ({
         });
       }
       onClose();
-    } catch (err) {
-      setError('Failed to save quest. Please try again.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error && err.message
+        ? err.message
+        : 'Failed to save quest. Please try again.';
+      setError(msg);
     } finally {
       setIsSubmitting(false);
     }
