@@ -10,7 +10,7 @@
 | Component | Platform | Live URL |
 | :--- | :--- | :--- |
 | **Frontend Web App** | **Vercel** | [https://life-rpg-xoc-ats.vercel.app](https://life-rpg-xoc-ats.vercel.app) |
-| **Production REST API** | **Render** | [https://life-rpg-gakex.onrender.com/api](https://life-rpg-gakex.onrender.com/api) |
+| **Production REST API** | **Render** | [https://life-rpg-akex.onrender.com/api](https://life-rpg-akex.onrender.com/api) |
 | **Database** | **Neon** | Serverless PostgreSQL (Ohio us-east-2) |
 | **GitHub Repository** | **GitHub** | [https://github.com/shubhamohm2001-hue/Life-RPG](https://github.com/shubhamohm2001-hue/Life-RPG) |
 
