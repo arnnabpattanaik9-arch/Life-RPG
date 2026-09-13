@@ -1,101 +1,185 @@
 # ⚔️ Life RPG — Gamified Real-World Productivity & Progression Engine
 
-An immersive, tactile, and dopamine-rich Life RPG web application translating mundane real-world tasks into a gamified virtual progression system. 
-
-Built with **React 19, TypeScript, Vite, Tailwind CSS, Web Audio API, and Canvas Confetti**.
-
----
-
-## 🌟 The Core Philosophy
-
-Traditional to-do apps and habit trackers suffer from a **delayed gratification** problem: reading a book, going to the gym, or writing code takes months to produce visible results. 
-
-**Life RPG** bridges this gap by introducing:
-- **Instant Dopamine Feedback Loops:** Every completed task awards visual floating numbers (`+XP`, `+Gold`), audio chimes, particle confetti, and boss damage strikes.
-- **Non-Linear Progression Engine:** Progression scales exponentially where each subsequent level requires more XP than the last.
-- **Real-World Attributes:** Tasks directly strengthen one of five character attributes: **Strength**, **Intellect**, **Vitality**, **Agility**, and **Charisma**.
-- **Living Virtual Economy:** Earn Gold and rare Gems to purchase weapons, armor, streak freeze shields, and focus elixirs in the **Royal Armory**.
-- **World Raid Boss Encounter:** *"The Procrastination Behemoth"* absorbs damage with every completed quest.
+> **Tech Zephyr 4.0 Hackathon Submission**  
+> An immersive, tactile, and dopamine-driven Life RPG platform translating real-world task execution into an authentic, server-authoritative virtual progression system.
 
 ---
 
-## 🕹️ Core Systems & Feature Matrix
+## 🌐 Production Deployments
 
-| System | Implementation Details |
-| :--- | :--- |
-| **RPG Progression Engine** | Formula: $\text{XP Required}(L) = \lfloor 100 \times L^{1.5} \rfloor$. Dynamic HP, MP, and Level gauges with celebration ascension modals. |
-| **Quests & Habits (CRUD)** | Full Create, Read, Update, and Delete with difficulty tiers (*Trivial*, *Easy*, *Medium*, *Hard*, *Epic*), attribute tagging, and recurrence. |
-| **Attributes Matrix** | 5 core attributes (**Strength**, **Intellect**, **Vitality**, **Agility**, **Charisma**) with individual levels, progress bars, and quest filtering. |
-| **Consecutive Streaks** | Consecutive days tracker, animated fire counter, 7-day visual timeline, streak shields, and compounding passive reward multipliers. |
-| **World Boss Raid** | Interactive raid encounter (*The Procrastination Behemoth*) taking damage upon completing tasks or executing direct strikes. |
-| **Armory & Economy** | Virtual merchant catalog with Weapons, Armor, Potions, and Titles. Equipped items confer passive XP/Gold multipliers. |
-| **Tactile Sound & FX** | Zero external audio dependencies: 100% procedural synthesis via the **Web Audio API** with instant navbar mute toggle. |
-| **Theme Engine** | 4 switchable visual themes: **Cyberpunk Neon**, **Arcane Fantasy**, **16-Bit Retro Dungeon**, and **Obsidian Stealth**. |
-| **Accessibility & Hotkeys** | Full keyboard navigation (`N` for New Quest, `S` for Armory, `I` for Inventory, `M` for Mute, `Esc` to Close). |
+| Component | Platform | Live URL |
+| :--- | :--- | :--- |
+| **Frontend Web App** | **Vercel** | [https://life-rpg-xoc-ats.vercel.app](https://life-rpg-xoc-ats.vercel.app) |
+| **Production REST API** | **Render** | [https://life-rpg-gakex.onrender.com/api](https://life-rpg-gakex.onrender.com/api) |
+| **Database** | **Neon** | Serverless PostgreSQL (Ohio us-east-2) |
+| **GitHub Repository** | **GitHub** | [https://github.com/shubhamohm2001-hue/Life-RPG](https://github.com/shubhamohm2001-hue/Life-RPG) |
 
 ---
 
-## 🏗️ Architecture & Backend-Ready Integration
+## 🎯 The Problem
 
-The frontend is architected with a decoupled **API Client Layer** (`src/services/api.ts`).
-
-- **Frontend-Only Mode (Active):** Uses `mockStorage.ts` to simulate database CRUD, sessions, inventory, and realistic simulated network latency.
-- **Backend / Database Connection (Next Phase):** Connecting your Node.js, Express, FastAPI, Django, or PostgreSQL backend only requires switching the environment flag:
-  ```env
-  VITE_USE_MOCK_API=false
-  VITE_API_URL=http://localhost:5000/api
-  ```
-All frontend request schemas, response models, and TypeScript interfaces match standard REST API contracts 1-to-1.
+Traditional to-do apps and habit trackers suffer from a fundamental **delayed gratification** dilemma:
+1. **Slow Real-World Feedback**: Real-world habits like physical conditioning, deep software engineering, or reading produce tangible results only over months, causing high abandonment rates.
+2. **Boring Digital Checklists**: Standard productivity tools treat task completion as binary checkmarks without sensory, emotional, or competitive feedback.
+3. **Lack of Progression Context**: Tasks are viewed in isolation rather than contributing to holistically balanced life domains.
 
 ---
 
-## 🚀 Getting Started
+## 💡 The Solution
+
+**Life RPG** bridges this gap by transforming everyday routines into a living RPG adventure:
+- **Instant Dopamine Feedback Loops**: Every completed quest awards floating rewards (`+XP`, `+Gold`), audio synthesizers, celebratory confetti particle bursts, and direct boss raid damage.
+- **Server-Authoritative Progression Engine**: Non-linear leveling mechanics prevent client-side spoofing and ensure authentic, verifiable progression.
+- **5 Real-World Attributes**: Tasks feed directly into character growth across **Strength**, **Intellect**, **Vitality**, **Agility**, and **Charisma**.
+- **Living Virtual Economy**: Earn Gold and rare Gems to purchase weapons, armor, streak freeze shields, and potions in the **Royal Armory**.
+- **Cooperative World Raid Encounter**: Battle *"The Procrastination Behemoth"*, a world raid boss whose health depletes with every completed task.
+
+---
+
+## 🕹️ Key Features
+
+- **Non-Linear RPG Progression**: XP curve scaled via $\text{XP Required}(L) = \lfloor 100 \times L^{1.5} \rfloor$, making each subsequent level progressively more demanding and rewarding.
+- **Full Quest CRUD Board**: Create, view, filter, edit, and complete tasks across 5 difficulty tiers (*Trivial*, *Easy*, *Medium*, *Hard*, *Epic*) with attribute tagging and recurrence types (`quest` and `daily`).
+- **Real-World Attributes Matrix**: Visual breakdown and level tracking for all 5 core attributes with targeted attribute filtering.
+- **Consecutive Streak System**: Active streak counter, 7-day visual timeline, compounding XP/Gold multipliers, and streak shield protection.
+- **World Raid Boss Encounter**: Real-time boss raid section featuring animated hit reactions, health bar scaling, and victory rewards.
+- **Royal Armory & Loadout Vault**: Shop catalog with Weapons, Armor, and Potions conferring passive bonus modifiers with inventory equipping.
+- **Tactile Procedural Audio Engine**: Zero external audio assets—100% procedural sound synthesis built with the browser's native **Web Audio API** with instant mute toggle.
+- **4 Switchable RPG Visual Themes**: Instant dynamic theme engine featuring **Cyberpunk Neon**, **Arcane Fantasy**, **16-Bit Retro Dungeon**, and **Obsidian Stealth** with customized typography, surface tints, borders, and ambient glow.
+- **Accessible Keyboard Navigation**: Global hotkeys (`N` for New Quest, `S` for Armory, `I` for Inventory, `M` for Mute, `Esc` to Close).
+
+---
+
+## 🏗️ Architecture & Technology Stack
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   Vercel Edge Host                     │
+│    React 19 + TypeScript + Vite + Tailwind CSS         │
+│           State: AuthContext + GameContext             │
+│            Procedural Audio (Web Audio API)            │
+└───────────────────────────┬────────────────────────────┘
+                            │ HTTPS / REST (Credentials: include)
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                   Render Web Service                   │
+│       Node.js + Express + TypeScript REST API          │
+│       - Security: Helmet, CORS, Express-Rate-Limit     │
+│       - Auth: Argon2id + Express-Session (connect-pg)  │
+│       - Validation: Zod Schemas                        │
+│       - Game Engine: Server-Authoritative Progression  │
+└───────────────────────────┬────────────────────────────┘
+                            │ Prisma ORM (Pooled SSL)
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│               Neon Serverless PostgreSQL               │
+│    Tables: User, Character, CharacterStats, Quest,     │
+│    QuestCompletion, Habit, FocusSession, Item,         │
+│    Inventory, Achievement, UserAchievement, Session    │
+└───────────────────────────┘
+```
+
+### Frontend Technology
+- **Framework**: React 19 (`react`, `react-dom`)
+- **Language**: TypeScript 5.7+
+- **Build Tool**: Vite 8.3
+- **Styling**: Tailwind CSS 3.4 with custom CSS variables / theme engine
+- **Icons**: Lucide React
+- **Visual FX**: Canvas-Confetti
+- **Audio**: Custom Web Audio API procedural synthesizer (`src/services/sound.ts`)
+
+### Backend Technology
+- **Runtime & Server**: Node.js 20+ with Express 4.21 (ES Modules)
+- **Language**: TypeScript 5.7
+- **Database ORM**: Prisma ORM 6.4
+- **Database**: PostgreSQL 17 / Neon Serverless PostgreSQL
+- **Authentication**: Session-based with `express-session` & `connect-pg-simple` PostgreSQL storage
+- **Password Security**: Argon2id (`argon2`) hashing with OWASP-recommended parameters
+- **Validation**: Zod 3.24 schemas with Express middleware
+- **Security Headers & Protection**: Helmet, CORS with credential validation, Express-Rate-Limit
+
+---
+
+## 🔒 Security & Server-Authoritative Design
+
+- **Server-Authoritative Progression**: All XP gains, gold awards, level-ups, streak calculations, and achievement unlocks are computed and persisted inside PostgreSQL database transactions (`$transaction`). The client cannot manipulate levels or reward payouts.
+- **Strict User Data Isolation**: Every database query filters by `userId` resolved from the cryptographically signed session cookie (`liferpg.sid`).
+- **Cross-Site Session Protection**: Cookies are configured with `httpOnly: true`, `secure: true`, and `sameSite: 'none'` with `trust proxy: 1` enabled for production reverse proxy environments.
+- **Password Hashing**: Passwords are never stored in plaintext and are hashed using Argon2id with 19 MiB memory cost and 2 iterations.
+- **Tiered Rate Limiting**: Dedicated rate limiting for authentication endpoints (`/api/auth/*`) to prevent brute-force attacks, plus global rate limiting for general API requests.
+- **Strict Input Validation**: All incoming requests are validated against strict Zod schemas with sanitization before touching business logic or database layers.
+
+---
+
+## 🚀 Local Development Setup
 
 ### 1. Prerequisites
-- **Node.js**: v18+ or v20+ recommended
-- **NPM** or **PNPM** / **Yarn**
+- **Node.js**: v20+ recommended
+- **NPM** (bundled with Node)
+- **PostgreSQL**: Local instance or free remote Neon database URL
 
-### 2. Installation
-Clone the repository and install dependencies:
+### 2. Clone the Repository
 ```bash
-cd life-rpg-frontend
-npm install
+git clone https://github.com/shubhamohm2001-hue/Life-RPG.git
+cd Life-RPG
 ```
 
-### 3. Environment Configuration
-Copy the template environment file:
+### 3. Backend Setup
 ```bash
+cd backend
+npm install
 cp .env.example .env
 ```
-Default configuration:
+
+Configure `backend/.env`:
 ```env
-VITE_USE_MOCK_API=true
-VITE_API_URL=http://localhost:5000/api
+PORT=5000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173
+SESSION_SECRET=your-secure-session-secret-key-min-32-chars
+DATABASE_URL="postgresql://username:password@localhost:5432/life_rpg?schema=public"
 ```
 
-### 4. Run Development Server
+Generate Prisma client and start backend:
+```bash
+npm run build
+npm start
+```
+The API will listen at `http://localhost:5000`.
+
+### 4. Frontend Setup
+In a new terminal window at the repository root:
+```bash
+npm install
+cp .env.example .env
+```
+
+Configure `.env`:
+```env
+VITE_USE_MOCK_API=false
+VITE_API_URL=http://localhost:5000/api
+VITE_APP_ENV=development
+```
+
+Start the Vite development server:
 ```bash
 npm run dev
 ```
 Open `http://localhost:5173` in your browser.
 
-### 5. Build for Production
-```bash
-npm run build
-```
-Creates an optimized production bundle in the `dist/` directory ready for deployment on Vercel, Netlify, Render, or AWS.
-
 ---
 
-## ⌨️ Tactile Keyboard Shortcuts
+## 📋 Hackathon Disclosures & Attributions
 
-- `[N]` — Forge a New Quest Directive
-- `[S]` — Open the Royal Armory & Shop
-- `[I]` — Open Hero Vault & Loadout
-- `[M]` — Toggle Procedural Sound Synthesizer (Mute / Unmute)
-- `[Esc]` — Close Active Modals
+- **AI Tools Disclosure**: **Antigravity AI (Google DeepMind)** was utilized as an agentic pair programmer for repository inspection, TypeScript debugging, production cross-origin cookie diagnosis, automated test verification via headless browser sessions, and submission documentation.
+- **Third-Party Libraries & Frameworks**: Standard open-source libraries were utilized: React, Vite, Tailwind CSS, Lucide React, Canvas-Confetti, Express, Prisma ORM, Argon2, connect-pg-simple, Helmet, CORS, and Zod.
+- **UI Template / Boilerplate Disclosure**: **No pre-built UI templates, theme kits, or boilerplate starters were used.** All application UI components, HUD layouts, cards, modals, game HUD styling, and CSS theme tokens were custom crafted for Life RPG.
+- **External Hosting & Infrastructure Disclosure**:
+  - **Vercel**: Edge static hosting and global CDN for the React frontend application.
+  - **Render**: Containerized Linux Web Service hosting the Node.js/Express REST API.
+  - **Neon**: Serverless cloud PostgreSQL database with pooled SSL connections.
 
 ---
 
 ## 🛡️ License
-MIT License. Built for the Life RPG Challenge.
+MIT License. Developed for **Tech Zephyr 4.0**.
