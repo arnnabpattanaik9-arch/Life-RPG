@@ -8,40 +8,144 @@
 }
 
 /* Custom Themes */
-body.theme-cyberpunk {
-  --bg-main: #070913;
-  --surface-main: #0e1322;
-  --card-main: #131b31;
-  --border-main: #1e293b;
+body.theme-cyberpunk, html.theme-cyberpunk {
+  --bg-main: #060913;
+  --surface-main: #0c1222;
+  --card-main: #111b33;
+  --border-main: #1d2d52;
   --accent: #00f0ff;
   --accent-sec: #d946ef;
+  --accent-glow: rgba(0, 240, 255, 0.4);
+  --primary-glow: rgba(0, 240, 255, 0.35);
+  --theme-glow: rgba(0, 240, 255, 0.22);
+  --theme-font: 'Rajdhani', sans-serif;
 }
 
-body.theme-arcane {
-  --bg-main: #0c0a1a;
-  --surface-main: #15112e;
-  --card-main: #1d1840;
-  --border-main: #312e81;
+body.theme-arcane, html.theme-arcane {
+  --bg-main: #0a0718;
+  --surface-main: #130d2a;
+  --card-main: #1b133b;
+  --border-main: #352668;
   --accent: #8b5cf6;
   --accent-sec: #f59e0b;
+  --accent-glow: rgba(139, 92, 246, 0.4);
+  --primary-glow: rgba(139, 92, 246, 0.35);
+  --theme-glow: rgba(139, 92, 246, 0.22);
+  --theme-font: 'Cinzel', serif;
 }
 
-body.theme-retro {
-  --bg-main: #121015;
-  --surface-main: #1a1622;
-  --card-main: #231d2f;
-  --border-main: #3f3750;
+body.theme-retro, html.theme-retro {
+  --bg-main: #0b120c;
+  --surface-main: #101c12;
+  --card-main: #18281a;
+  --border-main: #2b472e;
   --accent: #22c55e;
   --accent-sec: #eab308;
+  --accent-glow: rgba(34, 197, 94, 0.4);
+  --primary-glow: rgba(34, 197, 94, 0.35);
+  --theme-glow: rgba(34, 197, 94, 0.22);
+  --theme-font: 'Press Start 2P', monospace;
 }
 
-body.theme-obsidian {
+body.theme-obsidian, html.theme-obsidian {
   --bg-main: #050608;
-  --surface-main: #0b0d12;
-  --card-main: #12151c;
-  --border-main: #1e2330;
+  --surface-main: #0a0d12;
+  --card-main: #11151c;
+  --border-main: #1f2533;
   --accent: #f59e0b;
   --accent-sec: #64748b;
+  --accent-glow: rgba(245, 158, 11, 0.4);
+  --primary-glow: rgba(245, 158, 11, 0.3);
+  --theme-glow: rgba(245, 158, 11, 0.18);
+  --theme-font: 'Inter', sans-serif;
+}
+
+/* Theme Surface and Background Application */
+body {
+  background-color: var(--bg-main, #060913) !important;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out;
+}
+
+.bg-rpg-dark {
+  background-color: var(--bg-main, #060913) !important;
+  transition: background-color 0.25s ease-in-out;
+}
+
+/* Header & Top Bar */
+body[class*="theme-"] header {
+  background-color: var(--surface-main) !important;
+  border-bottom-color: var(--border-main) !important;
+  box-shadow: 0 4px 20px -2px var(--theme-glow);
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+/* Footer */
+body[class*="theme-"] footer {
+  background-color: var(--surface-main) !important;
+  border-top-color: var(--border-main) !important;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out;
+}
+
+/* Glassmorphic Panels, Cards & Modals */
+body[class*="theme-"] .rpg-panel {
+  background-color: var(--surface-main) !important;
+  border-color: var(--border-main) !important;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out;
+}
+
+body[class*="theme-"] .rpg-panel-glow {
+  background-color: var(--surface-main) !important;
+  border-color: var(--border-main) !important;
+  box-shadow: 0 0 25px -5px var(--theme-glow);
+}
+
+body[class*="theme-"] .rpg-card {
+  background-color: var(--card-main) !important;
+  border-color: var(--border-main) !important;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+body[class*="theme-"] .rpg-card:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 8px 24px -6px var(--theme-glow) !important;
+}
+
+/* Container surfaces across Dashboard, HUD, and Modals */
+body[class*="theme-"] [class*="bg-slate-900"]:not(button):not(input):not(span):not(select):not(img):not(.rpg-button) {
+  background-color: var(--card-main) !important;
+  transition: background-color 0.25s ease-in-out;
+}
+
+body[class*="theme-"] [class*="bg-slate-950"]:not(button):not(input):not(span):not(select):not(img):not(.rpg-button) {
+  background-color: var(--surface-main) !important;
+  transition: background-color 0.25s ease-in-out;
+}
+
+/* General Borders */
+body[class*="theme-"] [class*="border-slate-800"],
+body[class*="theme-"] [class*="border-slate-700"] {
+  border-color: var(--border-main) !important;
+  transition: border-color 0.25s ease-in-out;
+}
+
+/* Theme-specific typography for .font-rpg */
+body.theme-cyberpunk .font-rpg {
+  font-family: 'Rajdhani', sans-serif !important;
+  letter-spacing: 0.06em;
+}
+
+body.theme-arcane .font-rpg {
+  font-family: 'Cinzel', serif !important;
+}
+
+body.theme-retro .font-rpg {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 0.88em;
+  letter-spacing: 0;
+}
+
+body.theme-obsidian .font-rpg {
+  font-family: 'Cinzel', serif !important;
 }
 
 /* Custom Scrollbar */

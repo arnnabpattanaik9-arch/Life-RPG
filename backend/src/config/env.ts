@@ -48,7 +48,7 @@ export const config = {
   port: parsed.data.PORT,
   isProduction: parsed.data.NODE_ENV === 'production',
   isTest: parsed.data.NODE_ENV === 'test',
-  corsOrigins: parsed.data.CORS_ORIGIN.split(',').map((s) => s.trim()),
+  corsOrigins: parsed.data.CORS_ORIGIN.split(',').map((s) => s.trim().replace(/\/+$/, '')),
   sessionSecret: parsed.data.SESSION_SECRET,
   databaseUrl: parsed.data.DATABASE_URL,
 };

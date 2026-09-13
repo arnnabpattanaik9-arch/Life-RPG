@@ -257,11 +257,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updatedProfile.gems += 1 * levelsGained;
     }
 
-    // Persist to API
-    await Promise.all([
-      api.quests.update(id, { status: 'completed', completedAt: nowIso }),
-      api.character.updateProfile(updatedProfile),
-    ]);
+    // Persist to server-authoritative API
+    try {
+      await api.quests.complete(id);
+      const freshProfile = await api.character.getProfile();
+      if (freshProfile) {
+        setProfile(freshProfile);
+      }
+    } catch (err) {
+      console.warn('Backend quest completion sync notice:', err);
+    }
   };
 
   // --- SHOP & INVENTORY ---

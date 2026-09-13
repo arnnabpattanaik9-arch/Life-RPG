@@ -4,8 +4,28 @@ import { CharacterProfile, BossEntity } from '../types/character';
 import { Quest, QuestFilterOptions } from '../types/quest';
 import { ShopItem, InventoryItem } from '../types/shop';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
+function resolveApiBaseUrl(): string {
+  let url = import.meta.env.VITE_API_URL;
+  if (url && typeof url === 'string') {
+    url = url.trim();
+    // Strip accidental variable key duplication (e.g. VITE_API_URL=https://...)
+    if (url.startsWith('VITE_API_URL=')) {
+      url = url.substring('VITE_API_URL='.length).trim();
+    }
+    // Remove trailing slashes
+    url = url.replace(/\/+$/, '');
+    if (url) return url;
+  }
+  // Production fallback must target live Render backend
+  if (import.meta.env.PROD) {
+    return 'https://life-rpg-gakex.onrender.com/api';
+  }
+  return 'http://localhost:5000/api';
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+// Production frontend MUST use the real backend, not mock/localStorage API
+const USE_MOCK = import.meta.env.PROD ? false : import.meta.env.VITE_USE_MOCK_API === 'true';
 
 export class ApiError extends Error {
   status: number;
@@ -200,6 +220,7 @@ export async function listQuests(filter?: Partial<QuestFilterOptions>): Promise<
 
 export async function createQuest(quest: any): Promise<any> {
   if (USE_MOCK) return mockStorage.createQuest(quest);
+  const backendType = quest.type === 'habit' || quest.type === 'daily' ? 'daily' : 'quest';
   return request<any>('/quests', {
     method: 'POST',
     body: JSON.stringify({
@@ -207,13 +228,16 @@ export async function createQuest(quest: any): Promise<any> {
       notes: quest.description || quest.notes || undefined,
       attribute: quest.attribute,
       difficulty: quest.difficulty,
-      type: quest.type === 'habit' ? 'daily' : (quest.type || 'quest'),
+      type: backendType,
     }),
   });
 }
 
 export async function updateQuest(id: string, updates: any): Promise<any> {
   if (USE_MOCK) return mockStorage.updateQuest(id, updates);
+  const backendType = updates.type !== undefined
+    ? (updates.type === 'habit' || updates.type === 'daily' ? 'daily' : 'quest')
+    : undefined;
   return request<any>(`/quests/${id}`, {
     method: 'PATCH',
     body: JSON.stringify({
@@ -221,7 +245,7 @@ export async function updateQuest(id: string, updates: any): Promise<any> {
       notes: updates.description || updates.notes || undefined,
       attribute: updates.attribute,
       difficulty: updates.difficulty,
-      type: updates.type === 'habit' ? 'daily' : updates.type,
+      ...(backendType !== undefined ? { type: backendType } : {}),
     }),
   });
 }
@@ -361,6 +385,9 @@ export const api = {
     },
     delete: async (id: string): Promise<boolean> => {
       return deleteQuest(id);
+    },
+    complete: async (id: string): Promise<any> => {
+      return completeQuest(id);
     },
   },
 

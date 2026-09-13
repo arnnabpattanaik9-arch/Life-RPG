@@ -11,6 +11,9 @@ import apiRouter from './routes/index.js';
 
 const app = express();
 
+// Trust reverse proxy (e.g. Render, Vercel) so secure cookies over HTTPS work properly
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -20,7 +23,8 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, curl, server-to-server)
       if (!origin) return callback(null, true);
-      if (config.corsOrigins.includes(origin) || !config.isProduction) {
+      const normalized = origin.replace(/\/+$/, '');
+      if (config.corsOrigins.includes(normalized) || !config.isProduction) {
         return callback(null, true);
       }
       return callback(new ApiError('Not allowed by CORS', 403));
